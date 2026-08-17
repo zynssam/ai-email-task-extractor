@@ -15,10 +15,9 @@ load_dotenv()
 config = context.config
 
 # Set DB URL from .env with a safe fallback
-db_url = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg://dev:devpass@localhost:5432/email_tasks",
-)
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise RuntimeError("DATABASE_URL environment variable is required")
 config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
