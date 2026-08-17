@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, date
 from typing import List, Optional
-from sqlalchemy import String, Text, Boolean, Date, DateTime, ForeignKey, text, func
+from sqlalchemy import String, Text, Boolean, Date, DateTime, ForeignKey, CheckConstraint, text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 class Base(DeclarativeBase):
@@ -31,6 +31,10 @@ class User(Base):
     tasks: Mapped[List["Task"]] = relationship(
         "Task", back_populates="user", cascade="all, delete-orphan"
     )
+    __table_args__ = (
+    CheckConstraint("email LIKE '%@%.%'", name="check_user_email_format"),
+)
+
 
 class LinkedAccount(Base):
     __tablename__ = "linked_accounts"
@@ -87,6 +91,10 @@ class Task(Base):
         server_default=func.now(),
         nullable=False
     )
+    __table_args__ = (
+    CheckConstraint("status IN ('pending', 'completed', 'dismissed')", name="check_task_status"),
+)
+
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="tasks")
